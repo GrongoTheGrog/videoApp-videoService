@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: video-service
+
+  data:
+    mongodb:
+      uri: mongodb+srv://GrongoGlongo:123@cluster0.yrxsr.mongodb.net/video-displayer?appName=Cluster0
+      auto-index-creation: true
+
+
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: video_user
+    password: video_password
+    virtual-host: /videos
+
+server:
+  port: 8082
+
+aws:
+  s3:
+    bucket:
+      region: us-east-1
+      name: video-displayer
+
