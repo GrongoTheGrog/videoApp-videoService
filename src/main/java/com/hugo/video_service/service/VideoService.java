@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final QueueService queueService;
 
+    @Transactional
     public Video postVideo(
             UploadVideoDto uploadVideoDto,
             String userId
@@ -34,9 +36,9 @@ public class VideoService {
                     .description(uploadVideoDto.getDescription())
                     .build();
 
-        awsService.saveFile(uploadVideoDto.getFile(), userId + "/" + video.getId() + "/mp4");
         videoRepository.save(video);
-        queueService.postUploadVideoEvent(userId, uploadVideoDto, userId + "/" + video.getId() + "/mp4");
+        awsService.saveFile(uploadVideoDto.getFile(), userId + "/" + video.getId() + "/mp4");
+        queueService.postUploadVideoEvent(userId, uploadVideoDto, userId + "/" + video.getId());
 
         return video;
     }

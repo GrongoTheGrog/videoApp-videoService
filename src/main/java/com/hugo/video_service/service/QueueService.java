@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +21,19 @@ public class QueueService {
     public void postUploadVideoEvent(
             String userId,
             UploadVideoDto uploadVideoDto,
-            String videoPath
+            String videoDir
     ){
         UploadVideoEvent uploadVideoEvent = UploadVideoEvent.builder()
                         .videoQualities(uploadVideoDto.getVideoQuality())
                         .messageId(UUID.randomUUID().toString())
                         .userId(userId)
-                        .videoPath(videoPath)
+                        .videoPath(videoDir + "/mp4")
+                        .videoDir(videoDir)
                         .segmentDuration(6)
                         .build();
 
         rabbitTemplate.convertAndSend(uploadVideoEvent);
-        log.info("Upload video event created for file {}.", videoPath);
-
+        log.info("Upload video event created for file {}.", videoDir);
     }
 
 }
