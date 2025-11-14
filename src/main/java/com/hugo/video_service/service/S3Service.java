@@ -19,20 +19,15 @@ import java.nio.file.Path;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class AwsService {
+public class S3Service {
 
     @Value("${aws.s3.bucket.name}")
     private String bucketName;
 
     private final S3Client s3Client;
 
-    public void saveFile(MultipartFile file, String key) {
+    public void saveFile(Path file, String key) {
         try{
-            Path path = Files.createTempFile("temp-", "-file");
-            if (path.toFile().exists()) path.toFile().delete();
-            path.toFile().deleteOnExit();
-
-            copyFromToFile(file, path);
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -41,10 +36,8 @@ public class AwsService {
                     .build();
 
             log.info("Sending file {} to S3...", key);
-            s3Client.putObject(putObjectRequest, path);
+            s3Client.putObject(putObjectRequest, file);
             log.info("File {} sent.", key);
-
-            path.toFile().delete();
         }catch (Exception e){
             throw new HttpException("Error persisting file.", HttpStatus.INTERNAL_SERVER_ERROR);
         }

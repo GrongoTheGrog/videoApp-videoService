@@ -22,7 +22,12 @@ public class Video {
     private String userId;
     private Long sizeInBytes;
     private String title;
+    private Float durationInSeconds;
     private String description;
+    private Long views;
 
+    public void addViews(int views){
+        this.views += views;
+    }
 }
 

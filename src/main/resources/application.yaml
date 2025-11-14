@@ -24,8 +24,14 @@ server:
   port: 8082
 
 aws:
+  cloudfront:
+    key-pair-id: ${CLOUDFRONT_KEYPAIR_ID:K3BTW23UBI6NK8}
+    path-to-private-key: "${CLOUDFRONT_PRIVATE_KEY_PATH:C:/Keys/video-keypair.pem}"
+    domain: ${CLOUDFRONT_DOMAIN:d18tkusr9cdn5m.cloudfront.net}
+
   s3:
     bucket:
       region: us-east-1
       name: video-displayer
+
 
