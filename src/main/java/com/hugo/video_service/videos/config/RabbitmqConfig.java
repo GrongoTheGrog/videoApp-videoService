@@ -1,0 +1,41 @@
+package com.hugo.video_service.videos.config;
+
+
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class RabbitmqConfig {
+
+    private final String ROUTING_KEY = "video";
+
+    @Bean
+    public Exchange exchange(){
+        return new TopicExchange("video_exchange");
+    }
+
+    @Bean
+    public Queue queue(){
+        return new Queue("video_queue");
+    }
+
+    @Bean
+    public Binding binding(){
+        return BindingBuilder.bind(queue()).to(exchange()).with(ROUTING_KEY).noargs();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
+        RabbitTemplate rabbitTemplate = new RabbitTemplate();
+        rabbitTemplate.setConnectionFactory(connectionFactory);
+        rabbitTemplate.setExchange(exchange().getName());
+        rabbitTemplate.setRoutingKey(ROUTING_KEY);
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+
+        return rabbitTemplate;
+    }
+}
