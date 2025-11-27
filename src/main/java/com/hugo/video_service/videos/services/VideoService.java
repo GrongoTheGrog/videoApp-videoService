@@ -79,7 +79,7 @@ public class VideoService {
             throw new ForbiddenException("User must be the owner of the resource.");
 
         videoRepository.delete(video.get());
-
+        s3Service.deleteVideoByIdAndUserId(videoId, userId);
 
         log.info("Video deleted.");
     }

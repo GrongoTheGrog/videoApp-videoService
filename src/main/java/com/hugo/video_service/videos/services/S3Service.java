@@ -43,7 +43,7 @@ public class S3Service {
         }
     }
 
-    public void deleteFile(String fileId, String userId){
+    public void deleteVideoByIdAndUserId(String fileId, String userId){
         ListObjectsRequest listObjectsRequest = ListObjectsRequest.builder()
                 .prefix(userId + "/" + fileId)
                 .bucket(bucketName)

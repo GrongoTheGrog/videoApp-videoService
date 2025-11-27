@@ -60,7 +60,6 @@ public class VideoController {
             @RequestHeader(name = "user-id", required = true) String userId,
             HttpServletResponse res
     ){
-
         WatchVideoDtoResponse watchVideoDtoResponse = videoService.watchVideo(videoId, userId);
 
         List<String> cookieHeaders = cloudfrontService.getCookieHeaders(
@@ -82,6 +81,7 @@ public class VideoController {
             ){
         return commentFacade.getCommentsByVideoId(videoId);
     }
+
 
 
 }

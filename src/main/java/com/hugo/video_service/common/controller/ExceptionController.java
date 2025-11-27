@@ -55,7 +55,7 @@ public class ExceptionController {
                 .exceptionId(UUID.randomUUID().toString())
                 .timeStamp(LocalDateTime.now())
                 .httpStatus(HttpStatus.BAD_REQUEST)
-                .message("Bad form fields privided.")
+                .message("Bad form fields provided.")
                 .build();
 
         Map<String, List<String>> fields = new HashMap<>();

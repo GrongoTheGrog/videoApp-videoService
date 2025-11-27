@@ -18,7 +18,7 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:video_user}
     password: ${RABBITMQ_PASSWORD:video_password}
-    virtual-host: ${RABBITMQ_VIRTUAL_HOST/videos}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/videos}
 
 server:
   port: ${PORT:8082}
