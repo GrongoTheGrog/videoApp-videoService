@@ -21,9 +21,9 @@ public class CommentService {
         return commentRepository.findByVideoId(videoId);
     }
 
-    public Comment createComment(CreateCommentDto createCommentDto){
+    public Comment createComment(CreateCommentDto createCommentDto, String userId){
         Comment comment = Comment.builder()
-                .userId(createCommentDto.getUserId())
+                .userId(userId)
                 .content(createCommentDto.getContent())
                 .videoId(createCommentDto.getVideoId())
                 .build();

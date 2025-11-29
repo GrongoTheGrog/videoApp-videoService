@@ -1,5 +1,7 @@
 package com.hugo.video_service;
 
+import com.hugo.video_service.comments.Comment;
+import com.hugo.video_service.comments.Reply;
 import com.hugo.video_service.videos.Video;
 import org.springframework.mock.web.MockMultipartFile;
 
@@ -26,4 +28,20 @@ public class TestUtils {
                 .build();
     }
 
+    public static Comment getComment(){
+        return Comment.builder()
+                .content("Content content content.")
+                .videoId("1234")
+                .userId("1234")
+                .build();
+    }
+
+    public static Reply getReply(){
+        return Reply.builder()
+                .content("Content content content.")
+                .videoId("1234")
+                .userId("1234")
+                .commentId("1234")
+                .build();
+    }
 }

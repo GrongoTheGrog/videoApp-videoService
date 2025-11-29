@@ -6,15 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 public class CreateCommentDto {
 
     private String videoId;
-    private String userId;
 
     @Size(max = 200, message = "Comment can't have more than 200 characters.")
     private String content;
