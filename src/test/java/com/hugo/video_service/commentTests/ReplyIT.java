@@ -54,7 +54,7 @@ public class ReplyIT {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/replies")
                 .contentType("application/json")
-                .header("user-id", "123")
+                .header("user_id", "123")
                 .content(replyJson)
         )
                 .andExpect(MockMvcResultMatchers.status().isCreated())

@@ -20,7 +20,7 @@ public class ReplyController {
     @ResponseStatus(HttpStatus.CREATED)
     public Reply createReply(
             @RequestBody @Valid CreateReplyDto createReplyDto,
-            @RequestHeader(name = "user-id", required = true) String userId
+            @RequestHeader(name = "user_id", required = true) String userId
     ){
         return replyService.createReply(createReplyDto, userId);
     }

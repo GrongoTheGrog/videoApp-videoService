@@ -10,6 +10,8 @@ import com.hugo.video_service.videos.Video;
 import com.hugo.video_service.videos.services.VideoService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,10 +78,11 @@ public class VideoController {
 
     @GetMapping(value = "/{videoId}/comments", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    public List<Comment> getVideoComments (
-            @PathVariable String videoId
+    public Page<Comment> getVideoComments (
+            @PathVariable String videoId,
+            Pageable pageable
             ){
-        return commentFacade.getCommentsByVideoId(videoId);
+        return commentFacade.getCommentsByVideoId(videoId, pageable);
     }
 
 

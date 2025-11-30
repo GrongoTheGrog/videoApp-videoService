@@ -3,8 +3,12 @@ package com.hugo.video_service.comments.services;
 import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.dto.CreateCommentDto;
 import com.hugo.video_service.comments.repositories.CommentRepository;
+import com.hugo.video_service.common.dto.Role;
+import com.hugo.video_service.common.exceptions.ForbiddenException;
 import com.hugo.video_service.common.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
@@ -17,8 +21,8 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
-    public List<Comment> getCommentsByVideoId(String videoId){
-        return commentRepository.findByVideoId(videoId);
+    public Page<Comment> getCommentsByVideoId(String videoId, Pageable pageable){
+        return commentRepository.findByVideoId(videoId, pageable);
     }
 
     public Comment createComment(CreateCommentDto createCommentDto, String userId){
@@ -36,5 +40,18 @@ public class CommentService {
     public Comment getCommentById(String commentId){
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Could not find comment with id: " + commentId));
+    }
+
+    public void deleteComment(String commentId, String userId, List<Role> roles) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        if (optionalComment.isEmpty()) return;
+
+        Comment comment = optionalComment.get();
+
+        if (!userId.equals(comment.getUserId()) && !roles.contains(Role.ADMIN)){
+            throw new ForbiddenException("An user can't delete another user's comment.");
+        }
+
+        commentRepository.delete(comment);
     }
 }

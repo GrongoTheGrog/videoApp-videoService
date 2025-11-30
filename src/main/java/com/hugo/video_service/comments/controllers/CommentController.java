@@ -6,6 +6,7 @@ import com.hugo.video_service.comments.Reply;
 import com.hugo.video_service.comments.dto.CreateCommentDto;
 import com.hugo.video_service.comments.services.CommentService;
 import com.hugo.video_service.comments.services.ReplyService;
+import com.hugo.video_service.common.dto.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +29,7 @@ public class CommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public Comment createComment(
             @RequestBody @Valid CreateCommentDto createCommentDto,
-            @RequestHeader(name = "user-id", required = true) String userId
+            @RequestHeader(name = "user_id", required = true) String userId
             ){
         return commentService.createComment(createCommentDto, userId);
     }
@@ -48,5 +49,15 @@ public class CommentController {
             Pageable pageable
     ){
         return replyService.getByCommentId(commentId, pageable);
+    }
+
+    @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteReply(
+            @PathVariable String commentId,
+            @Header(name = "user_id") String userId,
+            @Header(name = "user_roles") List<Role> roles
+            ){
+        commentService.deleteComment(commentId, userId, roles);
     }
 }

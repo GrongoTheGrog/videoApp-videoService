@@ -2,6 +2,7 @@ package com.hugo.video_service.commentTests;
 
 
 import com.hugo.video_service.ContainerUtils;
+import com.hugo.video_service.TestUtils;
 import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.dto.CreateCommentDto;
 import com.hugo.video_service.comments.repositories.CommentRepository;
@@ -17,6 +18,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.mongodb.MongoDBAtlasLocalContainer;
 import static org.assertj.core.api.Assertions.*;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import org.testcontainers.shaded.org.yaml.snakeyaml.events.CommentEvent;
+
+import java.util.List;
+import java.util.Map;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -48,7 +53,7 @@ public class CommentIT {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/comments")
                 .contentType("application/json")
                 .content(commentJson)
-                .header("user-id", "123")
+                .header("user_id", "123")
         )
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andReturn();
@@ -58,5 +63,25 @@ public class CommentIT {
         assertThat(comment.getContent()).isEqualTo(createCommentDto.getContent());
         assertThat(comment.getVideoId()).isEqualTo(createCommentDto.getVideoId());
         assertThat(comment.getUserId()).isEqualTo("123");
+    }
+
+    @Test
+    public void testIfCommentCanBeRetrieved() throws Exception {
+
+        Comment comment = TestUtils.getComment();
+        commentRepository.save(comment);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/videos/" + comment.getVideoId() + "/comments")
+                        .header("user_id", "123")
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        Map<String, Object> page = objectMapper.readValue(result.getResponse().getContentAsString(), Map.class);
+        List<Map<String, String>> comments = (List<Map<String, String>>) page.get("content");
+
+        assertThat(comments.size()).isEqualTo(1);
+        assertThat(comments.getFirst().get("id")).isEqualTo(comment.getId());
+
     }
 }
