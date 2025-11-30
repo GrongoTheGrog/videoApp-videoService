@@ -3,7 +3,11 @@ package com.hugo.video_service.videos.controllers;
 import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.services.CommentFacade;
 import com.hugo.video_service.comments.services.CommentService;
+import com.hugo.video_service.common.exceptions.ForbiddenException;
+import com.hugo.video_service.videos.VideoProgress;
 import com.hugo.video_service.videos.dto.UploadVideoDto;
+import com.hugo.video_service.videos.dto.VideoProgressDto;
+import com.hugo.video_service.videos.dto.VideoProgressRequest;
 import com.hugo.video_service.videos.dto.WatchVideoDtoResponse;
 import com.hugo.video_service.videos.services.CloudfrontService;
 import com.hugo.video_service.videos.Video;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -85,6 +90,24 @@ public class VideoController {
         return commentFacade.getCommentsByVideoId(videoId, pageable);
     }
 
+    @PatchMapping("/{videoId}/progress")
+    @ResponseStatus(HttpStatus.OK)
+    public VideoProgressDto patchVideoProgress(
+            @RequestBody VideoProgressRequest videoProgressRequest,
+            @PathVariable String videoId,
+            @RequestHeader(name = "user_id", required = true) String userId
+            ){
 
+        return videoService.patchVideoProgress(videoProgressRequest, userId, videoId);
+    }
+
+    @GetMapping("/{videoId}/progress")
+    @ResponseStatus(HttpStatus.OK)
+    public VideoProgressDto getVideoProgress(
+            @PathVariable String videoId,
+            @RequestHeader(name = "user_id", required = true) String userId
+    ){
+        return videoService.getVideoProgress(userId, videoId);
+    }
 
 }

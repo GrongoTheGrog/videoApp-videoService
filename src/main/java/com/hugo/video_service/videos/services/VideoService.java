@@ -2,16 +2,21 @@ package com.hugo.video_service.videos.services;
 
 
 import com.hugo.video_service.videos.Video;
+import com.hugo.video_service.videos.VideoProgress;
 import com.hugo.video_service.videos.dto.UploadVideoDto;
+import com.hugo.video_service.videos.dto.VideoProgressDto;
+import com.hugo.video_service.videos.dto.VideoProgressRequest;
 import com.hugo.video_service.videos.dto.WatchVideoDtoResponse;
 import com.hugo.video_service.common.exceptions.ForbiddenException;
 import com.hugo.video_service.common.exceptions.NotFoundException;
+import com.hugo.video_service.videos.repositories.VideoProgressRepository;
 import com.hugo.video_service.videos.utils.S3PathBuilder;
 import com.hugo.video_service.videos.utils.TempFileManager;
 import com.hugo.video_service.videos.repositories.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +37,8 @@ public class VideoService {
     private final S3Service s3Service;
     private final VideoRepository videoRepository;
     private final QueueService queueService;
-    private final CloudfrontService cloudfrontService;
+    private final VideoProgressRepository videoProgressRepository;
+    private final ModelMapper modelMapper;
 
     @Transactional
     public Video postVideo(
@@ -109,4 +115,33 @@ public class VideoService {
                 .build();
     }
 
+    public VideoProgressDto patchVideoProgress(
+            VideoProgressRequest videoProgressRequest,
+            String userId,
+            String videoId
+    ){
+        return videoProgressRepository.findByUserIdAndVideoId(userId, videoId)
+                .map(videoProgress -> modelMapper.map(videoProgress, VideoProgressDto.class))
+                .orElseGet(() -> {
+                   VideoProgress videoProgress = VideoProgress.builder()
+                           .lastPositionInSeconds(videoProgressRequest.getLastPositionInSeconds())
+                           .userId(userId)
+                           .videoId(videoId)
+                           .build();
+
+                   videoProgressRepository.save(videoProgress);
+
+                   return modelMapper.map(videoProgress, VideoProgressDto.class);
+                });
+    }
+
+
+    public VideoProgressDto getVideoProgress(
+            String userId,
+            String videoId
+    ){
+        return videoProgressRepository.findByUserIdAndVideoId(userId, videoId)
+                .map(videoProgress -> modelMapper.map(videoProgress, VideoProgressDto.class))
+                .orElseThrow(() -> new NotFoundException("Could not find video progress."));
+    }
 }

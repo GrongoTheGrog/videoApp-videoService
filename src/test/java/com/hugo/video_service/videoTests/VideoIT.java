@@ -29,7 +29,7 @@ import org.testcontainers.mongodb.MongoDBAtlasLocalContainer;
 import static org.assertj.core.api.Assertions.*;
 import org.testcontainers.rabbitmq.RabbitMQContainer;
 import org.mockito.Mockito.*;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.swing.text.html.Option;
 import java.nio.file.Path;
@@ -44,7 +44,8 @@ public class VideoIT {
     private static final RabbitMQContainer rabbitMQContainer = ContainerUtils.setUpRabbitMq();
     private static final MongoDBAtlasLocalContainer mongoDbContainer = ContainerUtils.setUpMongoAtlas();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoSpyBean
     private QueueService queueService;
@@ -88,9 +89,14 @@ public class VideoIT {
         Video video = TestUtils.getVideo();
         videoRepository.save(video);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/videos/" + video.getId() + "/watch")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/videos/" + video.getId() + "/watch")
                         .header("user-id", "123"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        WatchVideoDtoResponse watchVideoDtoResponse = objectMapper.readValue(result.getResponse().getContentAsString(), WatchVideoDtoResponse.class);
+
+        assertThat(watchVideoDtoResponse).isNotNull();
     }
 
     @Test
