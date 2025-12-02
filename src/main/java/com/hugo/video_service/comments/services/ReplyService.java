@@ -53,4 +53,18 @@ public class ReplyService {
 
         replyRepository.delete(reply);
     }
+
+    public Reply updateContent(String replyId, String content, String userId) {
+        Reply reply = replyRepository.findById(replyId)
+                .orElseThrow(() -> new NotFoundException("Comment could not be found."));
+
+        if (!reply.getUserId().equals(userId)){
+            throw new ForbiddenException("Only the reply's owner can update its contents.");
+        }
+
+        reply.setContent(content);
+        replyRepository.save(reply);
+
+        return reply;
+    }
 }

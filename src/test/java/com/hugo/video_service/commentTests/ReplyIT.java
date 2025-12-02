@@ -3,8 +3,10 @@ package com.hugo.video_service.commentTests;
 
 import com.hugo.video_service.ContainerUtils;
 import com.hugo.video_service.TestUtils;
+import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.Reply;
 import com.hugo.video_service.comments.dto.CreateReplyDto;
+import com.hugo.video_service.comments.dto.UpdateCommentReply;
 import com.hugo.video_service.comments.repositories.ReplyRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -172,5 +174,29 @@ public class ReplyIT {
         Optional<Reply> deletedComment = replyRepository.findById(reply.getId());
 
         assertThat(deletedComment.isPresent()).isTrue();
+    }
+
+    @Test
+    public void testIfContentOfReplyCanBeUpdated() throws Exception {
+
+        Reply reply = TestUtils.getReply();
+        replyRepository.save(reply);
+
+        UpdateCommentReply updateCommentReply = UpdateCommentReply.builder()
+                .content("completely new content")
+                .build();
+
+        String json = objectMapper.writeValueAsString(updateCommentReply);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.patch("/replies/" + reply.getId())
+                        .header("user_id", reply.getUserId())
+                        .contentType("application/json")
+                        .content(json)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        Reply responseReply = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Reply.class);
+        assertThat(responseReply.getContent()).isEqualTo(updateCommentReply.getContent());
     }
 }

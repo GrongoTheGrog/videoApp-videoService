@@ -5,6 +5,7 @@ import com.hugo.video_service.ContainerUtils;
 import com.hugo.video_service.TestUtils;
 import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.dto.CreateCommentDto;
+import com.hugo.video_service.comments.dto.UpdateCommentReply;
 import com.hugo.video_service.comments.repositories.CommentRepository;
 import com.hugo.video_service.videos.repositories.VideoRepository;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.mongodb.MongoDBAtlasLocalContainer;
 import static org.assertj.core.api.Assertions.*;
+
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.shaded.org.yaml.snakeyaml.events.CommentEvent;
 
@@ -137,5 +140,29 @@ public class CommentIT {
         Optional<Comment> deletedComment = commentRepository.findById(comment.getId());
 
         assertThat(deletedComment.isPresent()).isTrue();
+    }
+
+    @Test
+    public void testIfContentOfCommentCanBeUpdated() throws Exception {
+
+        Comment comment = TestUtils.getComment();
+        commentRepository.save(comment);
+
+        UpdateCommentReply updateCommentReply = UpdateCommentReply.builder()
+                        .content("completely new content")
+                        .build();
+
+        String json = objectMapper.writeValueAsString(updateCommentReply);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.patch("/comments/" + comment.getId())
+                .header("user_id", comment.getUserId())
+                .contentType("application/json")
+                .content(json)
+        )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        Comment responseComment = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Comment.class);
+        assertThat(responseComment.getContent()).isEqualTo(updateCommentReply.getContent());
     }
 }

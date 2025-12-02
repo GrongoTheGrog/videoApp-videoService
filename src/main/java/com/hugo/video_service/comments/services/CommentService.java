@@ -49,9 +49,23 @@ public class CommentService {
         Comment comment = optionalComment.get();
 
         if (!userId.equals(comment.getUserId()) && !roles.contains(Role.ADMIN)){
-            throw new ForbiddenException("An user can't delete another user's comment.");
+            throw new ForbiddenException("An user can't delete another users comment.");
         }
 
         commentRepository.delete(comment);
+    }
+
+    public Comment updateContent(String commentId, String content, String userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("Comment could not be found."));
+
+        if (!comment.getUserId().equals(userId)){
+            throw new ForbiddenException("Only the comment's owner can update its contents.");
+        }
+
+        comment.setContent(content);
+        commentRepository.save(comment);
+
+        return comment;
     }
 }

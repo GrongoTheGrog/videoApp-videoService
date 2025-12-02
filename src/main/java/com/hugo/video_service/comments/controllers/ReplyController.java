@@ -1,8 +1,10 @@
 package com.hugo.video_service.comments.controllers;
 
 
+import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.Reply;
 import com.hugo.video_service.comments.dto.CreateReplyDto;
+import com.hugo.video_service.comments.dto.UpdateCommentReply;
 import com.hugo.video_service.comments.services.ReplyService;
 import com.hugo.video_service.common.dto.Role;
 import jakarta.validation.Valid;
@@ -44,6 +46,17 @@ public class ReplyController {
             @RequestHeader(name = "user_roles", required = true) List<Role> userRoles
     ){
         replyService.deleteReply(replyId, userId, userRoles);
+    }
+
+
+    @PatchMapping("/{replyId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Reply updateReply(
+            @PathVariable String replyId,
+            @RequestBody UpdateCommentReply updateCommentReply,
+            @RequestHeader(name = "user_id", required = true) String userId
+    ){
+        return replyService.updateContent(replyId, updateCommentReply.getContent(), userId);
     }
 
 }
