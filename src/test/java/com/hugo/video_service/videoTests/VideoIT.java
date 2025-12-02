@@ -11,9 +11,7 @@ import com.hugo.video_service.videos.services.S3Service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,16 +20,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.mongodb.MongoDBAtlasLocalContainer;
 import static org.assertj.core.api.Assertions.*;
 import org.testcontainers.rabbitmq.RabbitMQContainer;
-import org.mockito.Mockito.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.swing.text.html.Option;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +67,7 @@ public class VideoIT {
                 .param("title", "test")
                 .param("description", "test description")
                 .param("videoQuality", "R1080p", "R720p", "R480p")
-                .header("user-id", "12345678")
+                .header("user_id", "12345678")
         ).andExpect(MockMvcResultMatchers.status().isCreated());
 
         List<Video> videos = videoRepository.findAll();
@@ -90,7 +85,7 @@ public class VideoIT {
         videoRepository.save(video);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/videos/" + video.getId() + "/watch")
-                        .header("user-id", "123"))
+                        .header("user_id", "123"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
@@ -105,7 +100,7 @@ public class VideoIT {
         videoRepository.save(video);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/videos/" + video.getId())
-                .header("user-id", video.getUserId())
+                .header("user_id", video.getUserId())
         ).andExpect(MockMvcResultMatchers.status().isNoContent());
 
         Mockito.verify(s3Service).deleteVideoByIdAndUserId(video.getId(), video.getUserId());
