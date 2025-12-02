@@ -22,6 +22,7 @@ import org.testcontainers.shaded.org.yaml.snakeyaml.events.CommentEvent;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -63,10 +64,14 @@ public class CommentIT {
         assertThat(comment.getContent()).isEqualTo(createCommentDto.getContent());
         assertThat(comment.getVideoId()).isEqualTo(createCommentDto.getVideoId());
         assertThat(comment.getUserId()).isEqualTo("123");
+
+        Optional<Comment> createdComment = commentRepository.findById(comment.getId());
+
+        assertThat(createdComment.isPresent()).isTrue();
     }
 
     @Test
-    public void testIfCommentCanBeRetrieved() throws Exception {
+    public void testIfCommentCanBeRetrievedByVideoId() throws Exception {
 
         Comment comment = TestUtils.getComment();
         commentRepository.save(comment);
@@ -82,6 +87,55 @@ public class CommentIT {
 
         assertThat(comments.size()).isEqualTo(1);
         assertThat(comments.getFirst().get("id")).isEqualTo(comment.getId());
+    }
 
+
+    @Test
+    public void testIfCommentCanBeDeletedByOwner() throws Exception {
+
+        Comment comment = TestUtils.getComment();
+        commentRepository.save(comment);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/comments/" + comment.getId())
+                .header("user_id", comment.getUserId())
+                .header("user_roles", List.of("USER"))
+        ).andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Optional<Comment> deletedComment = commentRepository.findById(comment.getId());
+
+        assertThat(deletedComment.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void testIfCommentCanBeDeletedByAdmin() throws Exception {
+
+        Comment comment = TestUtils.getComment();
+        commentRepository.save(comment);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/comments/" + comment.getId())
+                .header("user_id", "admin")
+                .header("user_roles", List.of("ADMIN", "USER"))
+        ).andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Optional<Comment> deletedComment = commentRepository.findById(comment.getId());
+
+        assertThat(deletedComment.isEmpty()).isTrue();
+    }
+
+
+    @Test
+    public void testIfCommentCannotBeDeletedByAnotherUser() throws Exception {
+
+        Comment comment = TestUtils.getComment();
+        commentRepository.save(comment);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/comments/" + comment.getId())
+                .header("user_id", "another_user_id")
+                .header("user_roles", List.of("USER"))
+        ).andExpect(MockMvcResultMatchers.status().isForbidden());
+
+        Optional<Comment> deletedComment = commentRepository.findById(comment.getId());
+
+        assertThat(deletedComment.isPresent()).isTrue();
     }
 }

@@ -21,6 +21,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -124,4 +125,52 @@ public class ReplyIT {
     }
 
 
+    @Test
+    public void testIfCommentCanBeDeletedByOwner() throws Exception {
+
+        Reply reply = TestUtils.getReply();
+        replyRepository.save(reply);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/replies/" + reply.getId())
+                .header("user_id", reply.getUserId())
+                .header("user_roles", List.of("USER"))
+        ).andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Optional<Reply> deletedReply = replyRepository.findById(reply.getId());
+
+        assertThat(deletedReply.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void testIfCommentCanBeDeletedByAdmin() throws Exception {
+
+        Reply reply = TestUtils.getReply();
+        replyRepository.save(reply);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/replies/" + reply.getId())
+                .header("user_id", "admin")
+                .header("user_roles", List.of("ADMIN", "USER"))
+        ).andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Optional<Reply> deletedReply = replyRepository.findById(reply.getId());
+
+        assertThat(deletedReply.isEmpty()).isTrue();
+    }
+
+
+    @Test
+    public void testIfCommentCannotBeDeletedByAnotherUser() throws Exception {
+
+        Reply reply = TestUtils.getReply();
+        replyRepository.save(reply);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/replies/" + reply.getId())
+                .header("user_id", "another_user_id")
+                .header("user_roles", List.of("USER"))
+        ).andExpect(MockMvcResultMatchers.status().isForbidden());
+
+        Optional<Reply> deletedComment = replyRepository.findById(reply.getId());
+
+        assertThat(deletedComment.isPresent()).isTrue();
+    }
 }
