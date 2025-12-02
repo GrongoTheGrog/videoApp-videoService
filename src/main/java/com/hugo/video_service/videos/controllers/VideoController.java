@@ -19,9 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.transform.OutputKeys;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,11 +34,11 @@ public class VideoController {
     private final CloudfrontService cloudfrontService;
     private final CommentFacade commentFacade;
 
-    @PostMapping("/upload")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Video uploadVideo(
             @ModelAttribute UploadVideoDto uploadVideoDto,
-            @RequestHeader(name = "user-id", required = true) String userId
+            @RequestHeader(name = "user_id", required = true) String userId
             ) throws IOException {
         return videoService.postVideo(uploadVideoDto, userId);
     }
@@ -55,30 +55,18 @@ public class VideoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVideo(
             @PathVariable String videoId,
-            @RequestHeader(name = "user-id", required = true) String userId
+            @RequestHeader(name = "user_id", required = true) String userId
     ){
         videoService.deleteVideo(videoId, userId);
     }
 
     @GetMapping(value = "/{videoId}/watch", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<WatchVideoDtoResponse> watchVideo(
+    public WatchVideoDtoResponse watchVideo(
             @PathVariable String videoId,
-            @RequestHeader(name = "user-id", required = true) String userId,
-            HttpServletResponse res
+            @RequestHeader(name = "user_id", required = true) String userId
     ){
-        WatchVideoDtoResponse watchVideoDtoResponse = videoService.watchVideo(videoId, userId);
-
-        List<String> cookieHeaders = cloudfrontService.getCookieHeaders(
-                watchVideoDtoResponse.getFolderUrl(),
-                watchVideoDtoResponse.getExpiresAt()
-        );
-
-        for (String cookieHeader : cookieHeaders){
-            res.addHeader(HttpHeaders.SET_COOKIE, cookieHeader);
-        }
-
-        return ResponseEntity.ok(watchVideoDtoResponse);
+        return videoService.watchVideo(videoId, userId);
     }
 
     @GetMapping(value = "/{videoId}/comments", produces = "application/json")

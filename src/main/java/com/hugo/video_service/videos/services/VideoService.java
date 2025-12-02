@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,6 +40,7 @@ public class VideoService {
     private final QueueService queueService;
     private final VideoProgressRepository videoProgressRepository;
     private final ModelMapper modelMapper;
+    private final CloudfrontService cloudfrontService;
 
     @Transactional
     public Video postVideo(
@@ -108,10 +110,16 @@ public class VideoService {
 
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(video.getDurationInSeconds().intValue() + 1000);
 
+        List<String> cookieHeaders = cloudfrontService.getCookieHeaders(
+                folderPath,
+                expiresAt
+        );
+
         return WatchVideoDtoResponse.builder()
                 .manifestUrl(manifestUrl)
                 .expiresAt(expiresAt)
                 .folderUrl(folderUrl)
+                .cookies(cookieHeaders)
                 .build();
     }
 

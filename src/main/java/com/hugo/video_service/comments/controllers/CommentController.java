@@ -55,9 +55,9 @@ public class CommentController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteReply(
             @PathVariable String commentId,
-            @Header(name = "user_id") String userId,
-            @Header(name = "user_roles") List<Role> roles
+            @RequestHeader(name = "user_id") String userId,
+            @RequestHeader(name = "user_roles") Role roles
             ){
-        commentService.deleteComment(commentId, userId, roles);
+        commentService.deleteComment(commentId, userId, List.of(roles));
     }
 }

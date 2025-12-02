@@ -67,7 +67,7 @@ public class VideoIT {
     @Test
     public void testIfUserCanBeCreated() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/videos/upload")
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/videos")
                 .file(TestUtils.getTestVideo())
                 .param("title", "test")
                 .param("description", "test description")

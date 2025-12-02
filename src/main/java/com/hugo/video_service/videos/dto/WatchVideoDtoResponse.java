@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Builder
@@ -15,5 +16,6 @@ import java.time.LocalDateTime;
 public class WatchVideoDtoResponse {
     private String manifestUrl;
     private String folderUrl;
+    private List<String> cookies;
     private LocalDateTime expiresAt;
 }
