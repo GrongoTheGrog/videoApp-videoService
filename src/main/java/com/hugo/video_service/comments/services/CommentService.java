@@ -7,6 +7,7 @@ import com.hugo.video_service.common.dto.Role;
 import com.hugo.video_service.common.exceptions.ForbiddenException;
 import com.hugo.video_service.common.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -33,6 +35,8 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+
+        log.info("Comment {} created for video {}", comment.getId(), comment.getVideoId());
 
         return comment;
     }
@@ -53,6 +57,8 @@ public class CommentService {
         }
 
         commentRepository.delete(comment);
+
+        log.info("Comment {} deleted", comment.getId());
     }
 
     public Comment updateContent(String commentId, String content, String userId) {
@@ -65,6 +71,8 @@ public class CommentService {
 
         comment.setContent(content);
         commentRepository.save(comment);
+
+        log.info("Comment {} updated", comment.getId());
 
         return comment;
     }
