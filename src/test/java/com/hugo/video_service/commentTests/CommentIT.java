@@ -7,7 +7,11 @@ import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.dto.CreateCommentDto;
 import com.hugo.video_service.comments.dto.UpdateCommentReply;
 import com.hugo.video_service.comments.repositories.CommentRepository;
+import com.hugo.video_service.common.User;
+import com.hugo.video_service.common.repositories.UserRepository;
+import com.hugo.video_service.videos.Video;
 import com.hugo.video_service.videos.repositories.VideoRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,13 +46,23 @@ public class CommentIT {
     CommentRepository commentRepository;
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     MockMvc mockMvc;
+
 
     @Test
     public void testIfCommentCanBeCreated() throws Exception {
 
+        User user = TestUtils.getUser();
+        userRepository.save(user);
+
+        Video video = TestUtils.getVideo();
+        videoRepository.save(video);
+
         CreateCommentDto createCommentDto = CreateCommentDto.builder()
-                .videoId("123")
+                .videoId(video.getId())
                 .content("Really nice content here.")
                 .build();
 
@@ -57,7 +71,7 @@ public class CommentIT {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/comments")
                 .contentType("application/json")
                 .content(commentJson)
-                .header("user_id", "123")
+                .header("user_id", user.getId())
         )
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andReturn();
@@ -66,7 +80,7 @@ public class CommentIT {
 
         assertThat(comment.getContent()).isEqualTo(createCommentDto.getContent());
         assertThat(comment.getVideoId()).isEqualTo(createCommentDto.getVideoId());
-        assertThat(comment.getUserId()).isEqualTo("123");
+        assertThat(comment.getUser().getId()).isEqualTo(user.getId());
 
         Optional<Comment> createdComment = commentRepository.findById(comment.getId());
 
@@ -100,7 +114,7 @@ public class CommentIT {
         commentRepository.save(comment);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/comments/" + comment.getId())
-                .header("user_id", comment.getUserId())
+                .header("user_id", comment.getUser().getId())
                 .header("user_roles", List.of("USER"))
         ).andExpect(MockMvcResultMatchers.status().isNoContent());
 
@@ -155,7 +169,7 @@ public class CommentIT {
         String json = objectMapper.writeValueAsString(updateCommentReply);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.patch("/comments/" + comment.getId())
-                .header("user_id", comment.getUserId())
+                .header("user_id", comment.getUser().getId())
                 .contentType("application/json")
                 .content(json)
         )

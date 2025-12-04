@@ -8,6 +8,11 @@ import com.hugo.video_service.comments.Reply;
 import com.hugo.video_service.comments.dto.CreateReplyDto;
 import com.hugo.video_service.comments.dto.UpdateCommentReply;
 import com.hugo.video_service.comments.repositories.ReplyRepository;
+import com.hugo.video_service.common.User;
+import com.hugo.video_service.common.repositories.UserRepository;
+import com.hugo.video_service.videos.Video;
+import com.hugo.video_service.videos.repositories.VideoRepository;
+import com.hugo.video_service.videos.services.VideoService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +42,13 @@ public class ReplyIT {
     ReplyRepository replyRepository;
 
     @Autowired
+    VideoRepository videoRepository;
+
+    @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    UserRepository userRepository;
 
     @AfterEach
     public void clean(){
@@ -47,8 +58,14 @@ public class ReplyIT {
     @Test
     public void testIfReplyCanBeCreated() throws Exception {
 
+        User user = TestUtils.getUser();
+        userRepository.save(user);
+
+        Video video = TestUtils.getVideo();
+        videoRepository.save(video);
+
         CreateReplyDto createReplyDto = CreateReplyDto.builder()
-                .commentId("123")
+                .commentId(video.getId())
                 .content("reply content")
                 .videoId("123")
                 .build();
@@ -57,7 +74,7 @@ public class ReplyIT {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/replies")
                 .contentType("application/json")
-                .header("user_id", "123")
+                .header("user_id", user.getId())
                 .content(replyJson)
         )
                 .andExpect(MockMvcResultMatchers.status().isCreated())
@@ -68,7 +85,7 @@ public class ReplyIT {
         assertThat(reply.getContent()).isEqualTo(createReplyDto.getContent());
         assertThat(reply.getVideoId()).isEqualTo(createReplyDto.getVideoId());
         assertThat(reply.getCommentId()).isEqualTo(createReplyDto.getCommentId());
-        assertThat(reply.getUserId()).isEqualTo("123");
+        assertThat(reply.getUser().getId()).isEqualTo(user.getId());
 
     }
 
@@ -134,7 +151,7 @@ public class ReplyIT {
         replyRepository.save(reply);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/replies/" + reply.getId())
-                .header("user_id", reply.getUserId())
+                .header("user_id", reply.getUser().getId())
                 .header("user_roles", List.of("USER"))
         ).andExpect(MockMvcResultMatchers.status().isNoContent());
 
@@ -189,7 +206,7 @@ public class ReplyIT {
         String json = objectMapper.writeValueAsString(updateCommentReply);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.patch("/replies/" + reply.getId())
-                        .header("user_id", reply.getUserId())
+                        .header("user_id", reply.getUser().getId())
                         .contentType("application/json")
                         .content(json)
                 )

@@ -1,5 +1,6 @@
 package com.hugo.video_service.comments;
 
+import com.hugo.video_service.common.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class Comment {
 
     @Id
     private String id;
-    private String userId;
+    private User user;
     private String videoId;
     private String content;
 
