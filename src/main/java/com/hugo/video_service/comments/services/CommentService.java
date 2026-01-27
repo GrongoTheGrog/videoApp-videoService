@@ -9,15 +9,14 @@ import com.hugo.video_service.common.exceptions.ForbiddenException;
 import com.hugo.video_service.common.exceptions.HttpException;
 import com.hugo.video_service.common.exceptions.NotFoundException;
 import com.hugo.video_service.common.repositories.UserRepository;
-import com.hugo.video_service.videos.Video;
-import com.hugo.video_service.videos.services.VideoService;
+import com.hugo.video_service.videos.repositories.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-    private final VideoService videoService;
+    private final VideoRepository videoRepository;
 
     public Page<Comment> getCommentsByVideoId(String videoId, Pageable pageable){
         return commentRepository.findByVideoId(videoId, pageable);
@@ -35,7 +34,8 @@ public class CommentService {
 
     public Comment createComment(CreateCommentDto createCommentDto, String userId){
 
-        videoService.getVideo(createCommentDto.getVideoId());
+        videoRepository.findById(createCommentDto.getVideoId())
+                .orElseThrow(() -> new NotFoundException("Unable to find video."));
 
         User user = userRepository.findById(userId).orElseThrow(() ->
             new HttpException("User making the request does not exist.", HttpStatus.NOT_FOUND)

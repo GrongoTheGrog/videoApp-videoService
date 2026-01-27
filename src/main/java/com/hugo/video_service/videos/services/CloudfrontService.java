@@ -1,6 +1,8 @@
 package com.hugo.video_service.videos.services;
 
 import com.hugo.video_service.videos.exceptions.VideoException;
+import com.hugo.video_service.videos.utils.KeyLoader;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,7 @@ import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCustomPolicy;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 
 import java.nio.file.Path;
+import java.security.PrivateKey;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -16,25 +19,31 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class    CloudfrontService {
+public class CloudfrontService {
 
     @Value("${aws.cloudfront.key-pair-id}")
     private String keyPairId;
 
-    @Value("${aws.cloudfront.path-to-private-key}")
-    private String pathToKey;
+    @Value("${aws.cloudfront.private-key}")
+    private String privateKeyString;
+    private PrivateKey privateKey;
 
     @Value("${aws.cloudfront.domain}")
     private String domain;
 
     private final CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
 
+    @PostConstruct
+    public void init(){
+        privateKey = KeyLoader.loadPrivateKey(privateKeyString);
+    }
+
     public List<String> getCookieHeaders(String pathToStreamFolder, LocalDateTime expiresAt){
 
         try{
             CustomSignerRequest customRequest = CustomSignerRequest.builder()
                     .resourceUrl(pathToStreamFolder)
-                    .privateKey(Path.of(pathToKey))
+                    .privateKey(privateKey)
                     .keyPairId(keyPairId)
                     .expirationDate(expiresAt.toInstant(OffsetDateTime.now().getOffset()))
                     .activeDate(OffsetDateTime.now().toInstant())

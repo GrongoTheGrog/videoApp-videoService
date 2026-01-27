@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReplyRepository extends MongoRepository<Reply, String> {
     public Page<Reply> findByCommentId(String commentId, Pageable pageable);
+
+    void deleteByVideoId(String videoId);
 }

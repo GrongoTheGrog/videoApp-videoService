@@ -25,7 +25,8 @@ server:
 
 aws:
   cloudfront:
-    key-pair-id: ${CLOUDFRONT_KEYPAIR_ID:K3BTW23UBI6NK8}
+    key-pair-id: ${CLOUDFRONT_KEYPAIR_ID:KMGJUEHHTT3M4}
+    private-key: ${CLOUDFRONT_PRIVATE_KEY}
     path-to-private-key: "${CLOUDFRONT_PRIVATE_KEY_PATH:C:/Keys/video-keypair.pem}"
     domain: ${CLOUDFRONT_DOMAIN:d18tkusr9cdn5m.cloudfront.net}
 
@@ -33,5 +34,6 @@ aws:
     bucket:
       region: ${S3_BUCKET_REGION:us-east-1}
       name: ${S3_BUCKET_NAME:video-displayer}
+
 
 

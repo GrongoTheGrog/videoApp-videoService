@@ -15,7 +15,9 @@ import com.hugo.video_service.videos.services.VideoService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,14 @@ public class VideoController {
             @RequestHeader(name = "user_id", required = true) String userId
             ) throws IOException {
         return videoService.postVideo(uploadVideoDto, userId);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Page<Video> getVideos(
+            Pageable pageable
+    ){
+        return videoService.getVideos(pageable);
     }
 
     @GetMapping("/{videoId}")

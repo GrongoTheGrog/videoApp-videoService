@@ -1,6 +1,7 @@
 package com.hugo.video_service.videos.services;
 
 
+import com.hugo.video_service.comments.services.CommentFacade;
 import com.hugo.video_service.videos.Video;
 import com.hugo.video_service.videos.VideoProgress;
 import com.hugo.video_service.videos.dto.UploadVideoDto;
@@ -18,6 +19,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +44,7 @@ public class VideoService {
     private final VideoProgressRepository videoProgressRepository;
     private final ModelMapper modelMapper;
     private final CloudfrontService cloudfrontService;
+    private final CommentFacade commentFacade;
 
     @Transactional
     public Video postVideo(
@@ -79,6 +83,10 @@ public class VideoService {
         return video.get();
     }
 
+    public Page<Video> getVideos(Pageable pageable) {
+        return videoRepository.findAll(pageable);
+    }
+
     public void deleteVideo(String videoId, String userId){
         Optional<Video> video = videoRepository.findById(videoId);
         if (video.isEmpty()) return;
@@ -89,6 +97,7 @@ public class VideoService {
         videoRepository.delete(video.get());
         s3Service.deleteVideoByIdAndUserId(videoId, userId);
 
+        commentFacade.deleteCommentsAndRepliesByVideoId(videoId);
         log.info("Video deleted.");
     }
 
