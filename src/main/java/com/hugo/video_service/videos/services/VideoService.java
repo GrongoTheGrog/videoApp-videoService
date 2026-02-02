@@ -2,6 +2,10 @@ package com.hugo.video_service.videos.services;
 
 
 import com.hugo.video_service.comments.services.CommentFacade;
+import com.hugo.video_service.common.exceptions.HttpException;
+import com.hugo.video_service.evaluations.EvaluationType;
+import com.hugo.video_service.evaluations.dto.LikeRequestDto;
+import com.hugo.video_service.evaluations.services.EvaluationService;
 import com.hugo.video_service.videos.Video;
 import com.hugo.video_service.videos.VideoProgress;
 import com.hugo.video_service.videos.dto.UploadVideoDto;
@@ -45,6 +49,7 @@ public class VideoService {
     private final ModelMapper modelMapper;
     private final CloudfrontService cloudfrontService;
     private final CommentFacade commentFacade;
+    private final EvaluationService evaluationService;
 
     @Transactional
     public Video postVideo(
@@ -160,5 +165,12 @@ public class VideoService {
         return videoProgressRepository.findByUserIdAndVideoId(userId, videoId)
                 .map(videoProgress -> modelMapper.map(videoProgress, VideoProgressDto.class))
                 .orElseThrow(() -> new NotFoundException("Could not find video progress."));
+    }
+
+    public void LikeVideo(LikeRequestDto likeRequestDto, String userId, String videoId){
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new NotFoundException("Could not find content to evaluate."));
+
+        evaluationService.checkAndPersistLike(likeRequestDto, userId, video);
     }
 }

@@ -6,12 +6,15 @@ import com.hugo.video_service.TestUtils;
 import com.hugo.video_service.videos.Video;
 import com.hugo.video_service.videos.dto.WatchVideoDtoResponse;
 import com.hugo.video_service.videos.repositories.VideoRepository;
+import com.hugo.video_service.videos.services.CloudfrontService;
 import com.hugo.video_service.videos.services.QueueService;
 import com.hugo.video_service.videos.services.S3Service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,6 +50,9 @@ public class VideoIT {
 
     @MockitoBean
     private S3Service s3Service;
+
+    @MockitoBean
+    private CloudfrontService cloudfrontService;
 
     @Autowired
     private VideoRepository videoRepository;

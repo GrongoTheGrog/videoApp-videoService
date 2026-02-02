@@ -4,6 +4,7 @@ import com.hugo.video_service.comments.Comment;
 import com.hugo.video_service.comments.services.CommentFacade;
 import com.hugo.video_service.comments.services.CommentService;
 import com.hugo.video_service.common.exceptions.ForbiddenException;
+import com.hugo.video_service.evaluations.dto.LikeRequestDto;
 import com.hugo.video_service.videos.VideoProgress;
 import com.hugo.video_service.videos.dto.UploadVideoDto;
 import com.hugo.video_service.videos.dto.VideoProgressDto;
@@ -106,6 +107,16 @@ public class VideoController {
             @RequestHeader(name = "user_id", required = true) String userId
     ){
         return videoService.getVideoProgress(userId, videoId);
+    }
+
+    @PutMapping("/{videoId}/evaluation")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void likeVideo(
+            @PathVariable String videoId,
+            @RequestBody LikeRequestDto likeRequestDto,
+            @RequestHeader(name = "user_id", required = true) String userId
+    ){
+        videoService.LikeVideo(likeRequestDto, userId, videoId);
     }
 
 }
