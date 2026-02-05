@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: video-service
+
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+      auto-index-creation: true
+
+
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST}
+
+server:
+  port: ${PORT:8080}
+
+aws:
+  cloudfront:
+    key-pair-id: ${CLOUDFRONT_KEYPAIR_ID}
+    private-key: ${CLOUDFRONT_PRIVATE_KEY}
+    path-to-private-key: ${CLOUDFRONT_PRIVATE_KEY_PATH}
+    domain: ${CLOUDFRONT_DOMAIN}
+
+  s3:
+    bucket:
+      region: ${S3_BUCKET_REGION}
+      name: ${S3_BUCKET_NAME}
+
+
