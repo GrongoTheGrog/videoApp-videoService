@@ -17,6 +17,7 @@ public class UploadVideoEvent {
 
     private String messageId;
     private String videoPath;
+    private String videoId;
     private String videoDir;
     private String userId;
     private Integer segmentDuration;

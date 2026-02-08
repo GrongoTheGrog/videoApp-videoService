@@ -19,12 +19,14 @@ public class QueueService {
 
     public void postUploadVideoEvent(
             String userId,
+            String videoId,
             UploadVideoDto uploadVideoDto,
             String videoDir
     ){
         UploadVideoEvent uploadVideoEvent = UploadVideoEvent.builder()
                         .videoQualities(uploadVideoDto.getVideoQuality())
                         .messageId(UUID.randomUUID().toString())
+                        .videoId(videoId)
                         .userId(userId)
                         .videoPath(videoDir + "/mp4")
                         .videoDir(videoDir)

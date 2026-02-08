@@ -28,8 +28,11 @@ import java.util.concurrent.atomic.AtomicReference;
 @Log4j2
 public class S3Service {
 
-    @Value("${aws.s3.bucket.name}")
-    private String bucketName;
+    @Value("${aws.s3.bucket.video.name}")
+    private String videoBucketName;
+
+    @Value("${aws.s3.bucket.thumbnail.host}")
+    private String thumbnailBucketHost;
 
     private final S3Client s3Client;
 
@@ -37,7 +40,7 @@ public class S3Service {
         try{
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
+                    .bucket(videoBucketName)
                     .key(key)
                     .contentType("video/mp4")
                     .build();
@@ -60,7 +63,7 @@ public class S3Service {
 
         while (res == null || res.isTruncated()) {
             ListObjectsV2Request req = ListObjectsV2Request.builder()
-                    .bucket(bucketName)
+                    .bucket(videoBucketName)
                     .prefix(prefix)
                     .continuationToken(continuationToken)
                     .build();
@@ -84,7 +87,7 @@ public class S3Service {
 
                 DeleteObjectsRequest deleteReq =
                         DeleteObjectsRequest.builder()
-                                .bucket(bucketName)
+                                .bucket(videoBucketName)
                                 .delete(Delete.builder().objects(keys).build())
                                 .build();
 
@@ -102,6 +105,10 @@ public class S3Service {
             Thread.currentThread().interrupt();
             throw new HttpException("Interrupted while deleting files from cloud.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public String getThumbnailUrl(String videoId){
+        return thumbnailBucketHost + "/videoId";
     }
 
     private void copyFromToFile(MultipartFile multipartFile, Path path) throws IOException {

@@ -20,6 +20,7 @@ public class Video {
     private String userId;
     private Long sizeInBytes;
     private String title;
+    private String thumbnailUrl;
     private Float durationInSeconds;
     private String description;
     private Long views;

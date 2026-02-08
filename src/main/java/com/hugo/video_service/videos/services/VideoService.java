@@ -74,7 +74,9 @@ public class VideoService {
 
         videoRepository.save(video);
         s3Service.saveFile(path, userId + "/" + video.getId() + "/mp4");
-        queueService.postUploadVideoEvent(userId, uploadVideoDto, userId + "/" + video.getId());
+        video.setThumbnailUrl(s3Service.getThumbnailUrl(video.getId()));
+        videoRepository.save(video);
+        queueService.postUploadVideoEvent(userId, video.getId(), uploadVideoDto, userId + "/" + video.getId());
 
         TempFileManager.deleteFile(path);
 
@@ -134,6 +136,7 @@ public class VideoService {
                 .expiresAt(expiresAt)
                 .folderUrl(folderUrl)
                 .cookies(cookieHeaders)
+                .video(video)
                 .build();
     }
 

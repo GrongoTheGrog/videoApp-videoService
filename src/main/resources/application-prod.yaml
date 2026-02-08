@@ -33,6 +33,7 @@ aws:
   s3:
     bucket:
       region: ${S3_BUCKET_REGION}
-      name: ${S3_BUCKET_NAME}
-
-
+      video:
+        name: ${S3_VIDEO_BUCKET_NAME}
+      thumbnail:
+        host: ${S3_THUMBNAIL_BUCKET_NAME}
